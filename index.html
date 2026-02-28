@@ -1,0 +1,2429 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Endfield Party Optimizer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #06060e;
+      --s1: #0c0c1a;
+      --s2: #10101e;
+      --s3: #161626;
+      --s4: #1c1c30;
+      --border: #2a2a45;
+      --border2: #3a3a5a;
+      --primary: #4ade80;
+      --combo: #60d4ff;
+      --gold: #f0c050;
+      --text1: #e8e8f0;
+      --text2: #9090b0;
+      --text3: #606080;
+      --bright: #ffffff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text1);
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 12px;
+      min-height: 100vh
+    }
+
+    select,
+    input,
+    button {
+      font-family: 'Noto Sans KR', sans-serif
+    }
+
+    /* ── 헤더 ── */
+    .site-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 24px;
+      background: var(--s1);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100
+    }
+
+    .logo-hex {
+      width: 34px;
+      height: 34px;
+      background: var(--primary);
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 13px;
+      color: #000;
+      flex-shrink: 0
+    }
+
+    .site-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 2px
+    }
+
+    .site-title span {
+      color: var(--primary)
+    }
+
+    .site-sub {
+      font-size: 9px;
+      color: var(--text3);
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: .5px;
+      margin-top: 1px
+    }
+
+    /* ── 메인 ── */
+    .main {
+      padding: 14px 18px;
+      max-width: 1600px;
+      margin: 0 auto
+    }
+
+    .section-label {
+      font-size: 10px;
+      color: var(--primary);
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .section-label::before {
+      content: '●';
+      font-size: 7px
+    }
+
+    .section-label small {
+      color: var(--text3);
+      font-size: 9px;
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: 0
+    }
+
+    /* ── 파티 행 ── */
+    .party-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 10px
+    }
+
+    /* ── 캐릭터 슬롯 ── */
+    .char-slot {
+      background: var(--s2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+      transition: border-color .15s;
+      overflow: hidden
+    }
+
+    .char-slot.empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100px;
+      cursor: pointer;
+      opacity: .5;
+      border-style: dashed
+    }
+
+    .char-slot.empty:hover {
+      opacity: .85;
+      border-color: var(--primary)
+    }
+
+    .char-slot.filled {
+      border-color: var(--border2)
+    }
+
+    .slot-topbar {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 5px
+    }
+
+    .slot-num {
+      font-size: 10px;
+      color: var(--text3);
+      font-family: 'JetBrains Mono', monospace;
+      flex-shrink: 0
+    }
+
+    .slot-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--bright);
+      flex: 1
+    }
+
+    .slot-atk {
+      font-size: 10px;
+      color: var(--primary);
+      font-family: 'JetBrains Mono', monospace;
+      margin-bottom: 4px
+    }
+
+    .slot-clear {
+      background: none;
+      border: none;
+      color: var(--text3);
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      padding: 1px 3px
+    }
+
+    .slot-clear:hover {
+      color: #ff5555
+    }
+
+    .badges {
+      display: flex;
+      gap: 3px;
+      flex-wrap: wrap;
+      margin-bottom: 6px
+    }
+
+    .badge {
+      font-size: 9px;
+      padding: 1px 5px;
+      border-radius: 2px;
+      border: 1px solid;
+      font-family: 'JetBrains Mono', monospace
+    }
+
+    .badge-set {
+      border-color: var(--gold);
+      color: var(--gold)
+    }
+
+    /* select 공통 */
+    select.sel {
+      width: 100%;
+      background: var(--s3);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text1);
+      padding: 3px 5px;
+      font-size: 10px;
+      cursor: pointer
+    }
+
+    select.sel:focus {
+      outline: none;
+      border-color: var(--combo)
+    }
+
+    optgroup {
+      color: var(--gold)
+    }
+
+    option {
+      background: var(--s3);
+      color: var(--text1)
+    }
+
+    /* 무기 영역 */
+    .wpn-area {
+      margin-bottom: 6px
+    }
+
+    .wpn-sel-row {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      margin-bottom: 3px
+    }
+
+    .wpn-buff-tag {
+      font-size: 9px;
+      color: var(--combo);
+      padding: 2px 5px;
+      background: rgba(96, 212, 255, .08);
+      border-radius: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 120px
+    }
+
+    /* 무기 강화 레벨 버튼 (1~9) */
+    .lv-row {
+      display: flex;
+      gap: 2px;
+      flex-wrap: wrap;
+      margin-bottom: 4px
+    }
+
+    .lv-row-label {
+      font-size: 9px;
+      color: var(--text3);
+      margin-right: 3px;
+      align-self: center
+    }
+
+    .lv-btn {
+      font-size: 9px;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 1px 5px;
+      background: var(--s4);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      cursor: pointer;
+      color: var(--text3);
+      transition: .1s
+    }
+
+    .lv-btn.active {
+      background: var(--combo);
+      border-color: var(--combo);
+      color: #000;
+      font-weight: 700
+    }
+
+    /* 무기 3개 옵션 미리보기 */
+    .wpn-opts {
+      background: var(--s3);
+      border-radius: 4px;
+      padding: 4px 6px;
+      margin-bottom: 4px
+    }
+
+    .wpn-opt-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 9px;
+      padding: 1px 0
+    }
+
+    .wpn-opt-row+.wpn-opt-row {
+      border-top: 1px solid rgba(42, 42, 69, .5)
+    }
+
+    .wpn-opt-label {
+      color: var(--text3)
+    }
+
+    .wpn-opt-val {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--bright)
+    }
+
+    .wpn-opt-val.is-buff {
+      color: var(--combo)
+    }
+
+    /* 캐릭터 돌파 */
+    .pot-area {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 6px
+    }
+
+    .pot-label {
+      font-size: 9px;
+      color: var(--text3);
+      white-space: nowrap
+    }
+
+    .fg-btn-row {
+      display: flex;
+      gap: 2px
+    }
+
+    .fg-btn {
+      font-size: 9px;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 1px 6px;
+      background: var(--s4);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      cursor: pointer;
+      color: var(--text3);
+      transition: .1s
+    }
+
+    .fg-btn.active-pot {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #000;
+      font-weight: 700
+    }
+
+    .fg-btn.active-forge {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #000;
+      font-weight: 700
+    }
+
+    /* 장비 2×2 */
+    .equip-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px
+    }
+
+    .equip-cell {
+      background: var(--s3);
+      border-radius: 4px;
+      padding: 5px
+    }
+
+    .equip-cell-hdr {
+      font-size: 9px;
+      color: var(--text3);
+      margin-bottom: 3px
+    }
+
+    /* forge 3개 옵션 각각 */
+    .forge-list {
+      margin-top: 3px
+    }
+
+    .forge-item {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      padding: 2px 0;
+      border-top: 1px solid rgba(42, 42, 69, .4)
+    }
+
+    .forge-item:first-child {
+      border-top: none
+    }
+
+    .forge-item-label {
+      font-size: 8px;
+      color: var(--text3);
+      min-width: 0;
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap
+    }
+
+    .forge-item-btns {
+      display: flex;
+      gap: 2px;
+      flex-shrink: 0
+    }
+
+    .forge-item-val {
+      font-size: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--combo);
+      min-width: 30px;
+      text-align: right
+    }
+
+    /* 상세 스펙 버튼 */
+    .spec-btn {
+      width: 100%;
+      margin-top: 6px;
+      padding: 3px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      color: var(--text3);
+      font-size: 9px;
+      cursor: pointer;
+      transition: .1s;
+      text-align: center
+    }
+
+    .spec-btn:hover {
+      border-color: var(--combo);
+      color: var(--combo)
+    }
+
+    /* ── 버프 (카드 내 compact) ── */
+    .buff-inline {
+      margin-top: 5px;
+      padding-top: 5px;
+      border-top: 1px solid var(--border)
+    }
+
+    .buff-inline-hdr {
+      font-size: 9px;
+      color: var(--text3);
+      font-family: 'JetBrains Mono', monospace;
+      margin-bottom: 4px
+    }
+
+    .buff-inline-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px
+    }
+
+    .buff-opt {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 4px;
+      border-radius: 3px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: .1s
+    }
+
+    .buff-opt:hover {
+      background: var(--s3);
+      border-color: var(--border)
+    }
+
+    .buff-opt.buff-sel {
+      background: rgba(96, 212, 255, .07);
+      border-color: var(--combo)
+    }
+
+    .buff-opt input[type=checkbox] {
+      accent-color: var(--combo);
+      width: 11px;
+      height: 11px;
+      flex-shrink: 0
+    }
+
+    .buff-opt-name {
+      flex: 1;
+      font-size: 9px;
+      color: var(--text1)
+    }
+
+    .buff-opt-eff {
+      font-size: 8px;
+      color: var(--text3);
+      font-family: 'JetBrains Mono', monospace;
+      white-space: nowrap
+    }
+
+    /* ── 보스+설정 ── */
+    .config-row {
+      display: grid;
+      grid-template-columns: 1fr 230px;
+      gap: 8px;
+      margin-bottom: 10px
+    }
+
+    .boss-section {
+      background: var(--s2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px
+    }
+
+    .settings-section {
+      background: var(--s2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px
+    }
+
+    .enemy-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 5px
+    }
+
+    .enemy-card {
+      background: var(--s3);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 6px 8px;
+      cursor: pointer;
+      transition: .1s
+    }
+
+    .enemy-card:hover {
+      border-color: var(--border2)
+    }
+
+    .enemy-card.selected {
+      border-color: var(--primary);
+      background: rgba(74, 222, 128, .06)
+    }
+
+    .enemy-name {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--bright);
+      margin-bottom: 2px
+    }
+
+    .enemy-sub {
+      font-size: 9px;
+      color: var(--text3);
+      font-family: 'JetBrains Mono', monospace
+    }
+
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 5px
+    }
+
+    .setting-lbl {
+      font-size: 10px;
+      color: var(--text2)
+    }
+
+    .setting-inp {
+      background: var(--s3);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      color: var(--text1);
+      padding: 2px 5px;
+      font-size: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      width: 65px;
+      text-align: right
+    }
+
+    .setting-inp:focus {
+      outline: none;
+      border-color: var(--combo)
+    }
+
+    /* ── 실행 ── */
+    .run-section {
+      text-align: center;
+      margin-bottom: 12px
+    }
+
+    .run-btn {
+      padding: 9px 50px;
+      background: linear-gradient(135deg, var(--primary), #22c55e);
+      border: none;
+      border-radius: 6px;
+      color: #000;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 1px;
+      transition: .15s
+    }
+
+    .run-btn:hover:not(:disabled) {
+      filter: brightness(1.1)
+    }
+
+    .run-btn:disabled {
+      opacity: .4;
+      cursor: not-allowed
+    }
+
+    /* ── 진행률 바 ── */
+    .progress-wrap {
+      display: none;
+      margin-top: 10px;
+      background: var(--s3);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 14px;
+    }
+    .progress-wrap.visible { display: block; }
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--text2);
+      margin-bottom: 6px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .progress-bar-bg {
+      height: 5px;
+      background: var(--s4);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--primary), #22c55e);
+      border-radius: 3px;
+      transition: width 0.3s ease;
+    }
+    .progress-note {
+      font-size: 9px;
+      color: var(--text3);
+      margin-top: 5px;
+      text-align: right;
+    }
+
+    /* ── 결과 ── */
+    .results {
+      background: var(--s2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      display: none
+    }
+
+    .results.visible {
+      display: block
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 14px
+    }
+
+    .sum-card {
+      padding: 12px;
+      text-align: center;
+      border-right: 1px solid var(--border)
+    }
+
+    .sum-card:last-child {
+      border-right: none
+    }
+
+    .sum-label {
+      font-size: 9px;
+      color: var(--text3);
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 1px;
+      margin-bottom: 5px
+    }
+
+    .sum-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--primary);
+      font-family: 'JetBrains Mono', monospace
+    }
+
+    .sum-unit {
+      font-size: 10px;
+      color: var(--text2)
+    }
+
+    .char-contrib-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 12px
+    }
+
+    .char-contrib {
+      background: var(--s3);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px
+    }
+
+    .cc-head {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 3px
+    }
+
+    .cc-name {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--bright)
+    }
+
+    .cc-pct {
+      font-size: 13px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace
+    }
+
+    .cc-sub {
+      font-size: 10px;
+      color: var(--text2)
+    }
+
+    .cc-bar {
+      height: 3px;
+      background: var(--s4);
+      border-radius: 2px;
+      margin-top: 5px;
+      overflow: hidden
+    }
+
+    .cc-bar-fill {
+      height: 100%;
+      border-radius: 2px
+    }
+
+    .dmg-bar-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 0;
+      border-bottom: 1px solid var(--border)
+    }
+
+    .dmg-bar-row:last-child {
+      border-bottom: none
+    }
+
+    .dmg-bar-label {
+      width: 70px;
+      font-size: 10px;
+      color: var(--text2)
+    }
+
+    .dmg-bar-track {
+      flex: 1;
+      height: 6px;
+      background: var(--s4);
+      border-radius: 3px;
+      overflow: hidden
+    }
+
+    .dmg-bar-fill {
+      height: 100%;
+      border-radius: 3px
+    }
+
+    .dmg-bar-pct {
+      width: 40px;
+      text-align: right;
+      font-size: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text2)
+    }
+
+    .dmg-bar-val {
+      width: 50px;
+      text-align: right;
+      font-size: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--bright)
+    }
+
+    .tl-wrap {
+      overflow-x: auto;
+      margin-top: 8px
+    }
+
+    .rot-item {
+      display: grid;
+      grid-template-columns: 28px 52px 76px 1fr 80px 58px;
+      gap: 5px;
+      align-items: center;
+      padding: 4px 5px;
+      border-bottom: 1px solid var(--border);
+      font-size: 10px
+    }
+
+    .rot-item:hover {
+      background: var(--s3)
+    }
+
+    .rot-idx {
+      color: var(--text3);
+      font-family: 'JetBrains Mono', monospace;
+      text-align: right
+    }
+
+    .rot-time {
+      color: var(--text3);
+      font-family: 'JetBrains Mono', monospace
+    }
+
+    .rot-char {
+      font-weight: 600
+    }
+
+    .rot-action {
+      display: flex;
+      justify-content: center
+    }
+
+    .rot-tag {
+      padding: 1px 6px;
+      border-radius: 2px;
+      font-size: 9px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700
+    }
+
+    .rot-tag.basic {
+      background: rgba(96, 212, 255, .15);
+      color: var(--combo)
+    }
+
+    .rot-tag.skill {
+      background: rgba(255, 107, 53, .15);
+      color: #ff6b35
+    }
+
+    .rot-tag.link {
+      background: rgba(192, 96, 255, .15);
+      color: #c060ff
+    }
+
+    .rot-tag.ult {
+      background: rgba(240, 192, 80, .15);
+      color: var(--gold)
+    }
+
+    .rot-dmg {
+      text-align: right;
+      font-family: 'JetBrains Mono', monospace
+    }
+
+    /* ── 모달 공통 ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .72);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px)
+    }
+
+    .modal-overlay.open {
+      display: flex
+    }
+
+    .modal-box {
+      background: var(--s1);
+      border: 1px solid var(--border2);
+      border-radius: 10px;
+      width: min(680px, 95vw);
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0
+    }
+
+    .modal-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--bright)
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text3);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 0 4px;
+      line-height: 1
+    }
+
+    .modal-close:hover {
+      color: var(--text1)
+    }
+
+    .modal-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px
+    }
+
+    .filter-bar {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+      margin-bottom: 10px
+    }
+
+    .filter-btn {
+      padding: 3px 10px;
+      background: var(--s3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text2);
+      font-size: 10px;
+      cursor: pointer;
+      transition: .1s
+    }
+
+    .filter-btn.active,
+    .filter-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary)
+    }
+
+    .char-pick-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
+      gap: 5px
+    }
+
+    .char-pick-card {
+      background: var(--s3);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 7px;
+      cursor: pointer;
+      text-align: center;
+      transition: .1s
+    }
+
+    .char-pick-card:hover {
+      border-color: var(--primary)
+    }
+
+    .char-pick-card.disabled {
+      opacity: .4;
+      cursor: not-allowed;
+      pointer-events: none
+    }
+
+    .card-rarity {
+      font-size: 9px;
+      color: var(--gold);
+      font-family: 'JetBrains Mono', monospace;
+      margin-bottom: 2px
+    }
+
+    .card-rarity.r5 {
+      color: var(--text2)
+    }
+
+    .card-rarity.r4 {
+      color: var(--border2)
+    }
+
+    .card-name {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--bright);
+      margin-bottom: 2px
+    }
+
+    .card-elem {
+      font-size: 9px;
+      color: var(--text3)
+    }
+
+    /* ── 스펙 모달 ── */
+    .spec-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .65);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(3px)
+    }
+
+    .spec-modal-overlay.open {
+      display: flex
+    }
+
+    .spec-modal {
+      background: var(--s1);
+      border: 1px solid var(--border2);
+      border-radius: 10px;
+      width: min(360px, 95vw);
+      max-height: 88vh;
+      overflow-y: auto;
+      padding: 16px;
+      position: relative
+    }
+
+    .spec-modal-close {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      background: none;
+      border: none;
+      color: var(--text3);
+      font-size: 18px;
+      cursor: pointer;
+      line-height: 1;
+      z-index: 1
+    }
+
+    .spec-modal-close:hover {
+      color: var(--text1)
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="site-header">
+    <div class="logo-hex">X</div>
+    <div>
+      <div class="site-title">END<span>FIELD</span> PARTY OPTIMIZER</div>
+      <div class="site-sub">ARKNIGHTS: ENDFIELD // 4-CHARACTER PARTY DAMAGE CYCLE OPTIMIZER</div>
+    </div>
+  </header>
+
+  <div class="main">
+    <!-- ① 파티 구성 -->
+    <div class="section-label">파티 구성 <small>빈 슬롯 클릭으로 캐릭터 선택 · 각 캐릭터별 버프 아이템 하단 선택</small></div>
+    <div class="party-row" id="partyRow"></div>
+
+    <!-- ③ 보스 + 설정 -->
+    <div class="config-row">
+      <div class="boss-section">
+        <div class="section-label" style="margin-bottom:8px">목표 보스 선택</div>
+        <div class="enemy-grid" id="enemyGrid"></div>
+      </div>
+      <div class="settings-section">
+        <div class="section-label" style="margin-bottom:8px">전투 설정</div>
+        <div class="setting-row"><span class="setting-lbl">캐릭터 레벨</span>
+          <select id="gCharLv" class="sel" style="width:65px" onchange="onSettingChange()">
+            <option value="90" selected>Lv 90</option>
+            <option value="80">Lv 80</option>
+            <option value="70">Lv 70</option>
+          </select>
+        </div>
+        <div class="setting-row"><span class="setting-lbl">적 레벨</span>
+          <select id="gEnemyLv" class="sel" style="width:65px" onchange="onSettingChange()">
+            <option value="80" selected>Lv 80</option>
+            <option value="90">Lv 90</option>
+            <option value="70">Lv 70</option>
+          </select>
+        </div>
+        <div class="setting-row"><span class="setting-lbl">기본 치명타 확률</span>
+          <input type="number" id="gCritRate" class="setting-inp" value="5" min="0" max="100"
+            onchange="onSettingChange()">
+        </div>
+        <div class="setting-row"><span class="setting-lbl">기본 치명타 피해</span>
+          <input type="number" id="gCritDmg" class="setting-inp" value="150" min="100" onchange="onSettingChange()">
+        </div>
+        <div class="setting-row"><span class="setting-lbl">시뮬 시간</span>
+          <select id="gSimTime" class="sel" style="width:65px">
+            <option value="60">60s</option>
+            <option value="90" selected>90s</option>
+            <option value="120">120s</option>
+            <option value="180">180s</option>
+          </select>
+        </div>
+        <div class="setting-row"><span class="setting-lbl">궁극기 선충전</span>
+          <select id="gUltFull" class="sel" style="width:65px">
+            <option value="1" selected>충전됨</option>
+            <option value="0">빈 상태</option>
+          </select>
+        </div>
+        <div class="setting-row"><span class="setting-lbl">배틀 스킬 Lv</span>
+          <input type="number" id="gSkillLv" class="setting-inp" value="12" min="1" max="12">
+        </div>
+        <div class="setting-row"><span class="setting-lbl">링크 스킬 Lv</span>
+          <input type="number" id="gLinkLv" class="setting-inp" value="12" min="1" max="12">
+        </div>
+        <div class="setting-row"><span class="setting-lbl">궁극기 Lv</span>
+          <input type="number" id="gUltLv" class="setting-inp" value="12" min="1" max="12">
+        </div>
+      </div>
+    </div>
+
+    <!-- ④ 실행 -->
+    <div class="run-section">
+      <button class="run-btn" id="runBtn" onclick="runOptimizer()" disabled>⚡ 최적 딜 사이클 계산</button>
+      <div class="progress-wrap" id="progressWrap">
+        <div class="progress-header">
+          <span id="progressLabel">🔍 빔 서치 최적화 중...</span>
+          <span id="progressPct">0%</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-note" id="progressNote">빔 너비 20 · 최대 5초</div>
+      </div>
+    </div>
+
+    <!-- ⑤ 결과 -->
+    <div class="results" id="results">
+      <div class="section-label" style="margin-bottom:10px">시뮬레이션 결과</div>
+      <div class="summary-grid">
+        <div class="sum-card">
+          <div class="sum-label">총 딜량</div><span class="sum-value" id="rTotalDmg">—</span><span
+            class="sum-unit">만</span>
+        </div>
+        <div class="sum-card">
+          <div class="sum-label">DPS</div><span class="sum-value" id="rDps">—</span>
+        </div>
+        <div class="sum-card">
+          <div class="sum-label">딜 타임</div><span class="sum-value" id="rTime">—</span><span class="sum-unit">s</span>
+        </div>
+        <div class="sum-card">
+          <div class="sum-label">스킬 횟수</div><span class="sum-value" id="rSkills">—</span>
+        </div>
+      </div>
+      <div class="section-label" style="margin-bottom:8px">캐릭터별 딜 기여</div>
+      <div class="char-contrib-grid" id="charContrib"></div>
+      <div class="section-label" style="margin-bottom:8px;margin-top:12px">스킬 타입별 딜 분포</div>
+      <div id="typeDmgBreakdown"></div>
+      <div class="section-label" style="margin-bottom:6px;margin-top:12px">딜 사이클 타임라인 <span id="tlInfo"
+          style="font-size:9px;color:var(--text3);margin-left:8px;font-weight:400;letter-spacing:0"></span></div>
+      <div class="tl-wrap"><canvas id="tl"></canvas></div>
+      <div style="display:flex;gap:12px;margin-top:6px">
+        <span style="display:flex;align-items:center;gap:4px;font-size:9px;color:var(--text3)"><span
+            style="width:8px;height:8px;background:#60d4ff;border-radius:1px;display:inline-block"></span>기본공격</span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:9px;color:var(--text3)"><span
+            style="width:8px;height:8px;background:#ff6b35;border-radius:1px;display:inline-block"></span>배틀스킬</span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:9px;color:var(--text3)"><span
+            style="width:8px;height:8px;background:#c060ff;border-radius:1px;display:inline-block"></span>연계스킬</span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:9px;color:var(--text3)"><span
+            style="width:8px;height:8px;background:#f0c050;border-radius:1px;display:inline-block"></span>궁극기</span>
+      </div>
+      <div class="section-label" style="margin-bottom:6px;margin-top:14px">딜 로테이션</div>
+      <div id="rotList"></div>
+    </div>
+  </div>
+
+  <!-- 캐릭터 피커 모달 -->
+  <div class="modal-overlay" id="charPicker">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title">캐릭터 선택</div>
+        <button class="modal-close" id="pickerCloseBtn">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="filter-bar" id="pickerFilters">
+          <button class="filter-btn active" data-filter="all">전체</button>
+          <button class="filter-btn" data-filter="r6">6★</button>
+          <button class="filter-btn" data-filter="r5">5★</button>
+          <button class="filter-btn" data-filter="e-냉기">냉기</button>
+          <button class="filter-btn" data-filter="e-열기">열기</button>
+          <button class="filter-btn" data-filter="e-전기">전기</button>
+          <button class="filter-btn" data-filter="e-자연">자연</button>
+          <button class="filter-btn" data-filter="e-물리">물리</button>
+          <button class="filter-btn" data-filter="c-스트라이커">스트라이커</button>
+          <button class="filter-btn" data-filter="c-캐스터">캐스터</button>
+          <button class="filter-btn" data-filter="c-서포터">서포터</button>
+        </div>
+        <div class="char-pick-grid" id="charGrid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 스펙 모달 (Modal) -->
+  <div class="spec-modal-overlay" id="specModalOverlay" onclick="if(event.target===this)closeSpecModal()">
+    <div class="spec-modal">
+      <button class="spec-modal-close" onclick="closeSpecModal()">✕</button>
+      <div id="specModalContent"></div>
+    </div>
+  </div>
+
+</body>
+
+</html>
+<script type="module">
+  import { ENEMY_DB, SELECTABLE_ENEMIES, getEnemyStats, getTotalHp, MARBLE_AGGEL_COMBINED } from './data/적_DB.js';
+  import { BUFF_ITEM_DB } from './data/버프아이템_DB.js';
+  import { SP_SYSTEM, calcSkillDamage, calcDefMultiplier, calcCritMultiplier, PRIMARY_RATE, SECONDARY_RATE } from './data/효율공식_DB.js';
+  import { EQ_BY_SLOT, EQUIPMENT_DB, SET_BONUS_EFFECTS } from './data/장비_DB.js';
+  import { CHAR_DB } from './data/캐릭터_DB.js';
+  import { WEAPON_DB } from './data/무기_DB.js';
+  import { CHARACTER_TIMINGS } from './data/공격속도_DB.js';
+
+
+  // ═══════════════════════════════════════════════════════
+  // 상수
+  // ═══════════════════════════════════════════════════════
+  const CHAR_COLORS = ['#4ade80', '#60d4ff', '#c060ff', '#f0c050'];
+  const ELEM_COLORS = { 물리: '#a0b8d0', 열기: '#ff6b35', 냉기: '#60d4ff', 전기: '#ffe040', 자연: '#50e0a0' };
+  const SLOT_TYPES = ['글러브', '방어구', '부품①', '부품②'];
+  const SLOT_DB_KEY = ['글러브', '방어구', '부품', '부품'];
+  const BUFF_EFF_LABELS = { atk_flat: 'ATK', atk_pct: 'ATK%', crit_rate: '치명률', crit_dmg: '치명피해', all_dmg: '전피해%' };
+
+  // 서포터 조건부 버프 정의 (trigger: 'link'|'skill'|'ult', duration: 초)
+  const SUPPORTER_BUFF_CFG = {
+    '질베르타': { trigger: 'link',  type: 'amp', val: 1.30, duration: 15 },
+    '자이히':   { trigger: 'link',  type: 'amp', val: 1.21, duration: 15 },
+    '안탈':     { trigger: 'link',  type: 'amp', val: 1.17, duration: 15 },
+    '아델리아': { trigger: 'skill', type: 'atk', val: 0.15, duration: 15 },
+    '여풍':     { trigger: 'link',  type: 'atk', val: 0.15, duration: 15 },
+  };
+
+  // 캐릭터별 기본공격 스태거 누적량 (공격속도_DB 실측값)
+  const TIMING_MAP = new Map(CHARACTER_TIMINGS.map(t => [t.name, t]));
+  // 내부 키 → 한국어 표시 라벨 매핑
+  const KEY_LABEL_MAP = {
+    main_stat_pct: '주요 능력치 증가', sub_stat_pct: '보조 능력치 증가',
+    all_skill_dmg: '모든 스킬 피해', skill_dmg: '배틀 스킬 피해',
+    link_dmg: '연계 스킬 피해', ult_dmg: '궁극기 피해',
+    heal_pct: '치유 효율', dmg_reduction: '피해 감소',
+    heat_nat_dmg: '열기/자연 피해', cold_elec_dmg: '냉기/전기 피해',
+    atk_pct: 'ATK%', crit_rate: '치명타 확률', crit_dmg: '치명타 피해',
+    arts_dmg: '아츠 피해', arts_power: '아츠 강도',
+    cold_dmg: '냉기 피해', heat_dmg: '열기 피해',
+    elec_dmg: '전기 피해', nat_dmg: '자연 피해', phys_dmg: '물리 피해',
+    normal_dmg: '일반 공격 피해', hp_pct: '생명력%',
+    main_stat: '주요 능력치', str: '힘', agi: '민첩', int: '지능', wil: '의지',
+  };
+  function keyToLabel(key) { return KEY_LABEL_MAP[key] || key; }
+
+  // ═══════════════════════════════════════════════════════
+  // 상태
+  // ═══════════════════════════════════════════════════════
+  const party = [null, null, null, null];
+  const partyWeapons = [null, null, null, null];
+  // partyWpnSlotLv[charIdx] = [slot0Lv, slot1Lv, ..., buff0Lv, buff1Lv, ...] (각 1~9)
+  // 최대 3개 메인슬롯 + 최대 3개 버프슬롯 = 6개, 여유 포함 8개로 확장
+  const partyWpnSlotLv = [Array(8).fill(9), Array(8).fill(9), Array(8).fill(9), Array(8).fill(9)];
+  const partyEquip = [[null, null, null, null], [null, null, null, null],
+  [null, null, null, null], [null, null, null, null]];
+  // [char][slot][forgeIdx] = 0~3
+  const partyForgeLv = [[[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+  [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+  [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+  [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]];
+  const partyPotential = [0, 0, 0, 0];
+  const partyTalentLv = [4, 4, 4, 4]; // 정예화 단계 0~4 (기본 4단계 적용)
+  const partyBuffs = [null, null, null, null]; // 캐릭터별 버프 아이템 id
+
+  let selectedEnemy = null, activeSlot = -1, pickerFilter = 'all', simResult = null;
+  let ALL_ENEMIES = [];
+
+  // ═══════════════════════════════════════════════════════
+  // 스탯 헬퍼
+  // ═══════════════════════════════════════════════════════
+  function getWpnSlotVal(slot, lv) {
+    return slot.vals ? (slot.vals[lv - 1] ?? slot.max) : slot.max;
+  }
+  function getForgeVal(fg, lv) {
+    return fg['lv' + lv] ?? fg.lv0 ?? 0;
+  }
+  function getEquipStats(eq, forgeLvArr) {
+    if (!eq) return {};
+    const out = { ...eq.base };
+    (eq.forge || []).forEach((fg, fi) => { out[fg.key] = getForgeVal(fg, Array.isArray(forgeLvArr) ? forgeLvArr[fi] || 0 : 0); });
+    return out;
+  }
+  function getSetCounts(ci) {
+    const cnt = {};
+    partyEquip[ci].forEach(eq => { if (eq) cnt[eq.set] = (cnt[eq.set] || 0) + 1; });
+    return cnt;
+  }
+  function getActiveSets(ci) {
+    return Object.entries(getSetCounts(ci)).filter(([, n]) => n >= 3).map(([s]) => s);
+  }
+  function getPotBonus(c, potLv) {
+    const b = { str: 0, agi: 0, int: 0, wil: 0, atk_pct: 0, crit_rate: 0, crit_dmg: 0 };
+    if (!c.potentials || !potLv) return b;
+    for (let l = 1; l <= potLv; l++) { const p = c.potentials[l]; if (p) for (const [k, v] of Object.entries(p)) if (k in b) b[k] += v; }
+    return b;
+  }
+  function getTalentBonus(c, talLv) {
+    const b = { str: 0, agi: 0, int: 0, wil: 0 };
+    if (!c.talents || !talLv) return b;
+    for (let l = 1; l <= talLv; l++) { const t = c.talents[String(l)]; if (t) for (const [k, v] of Object.entries(t)) if (k in b) b[k] += v; }
+    return b;
+  }
+  function applySlotKey(key, v, a) {
+    const DB = a.dmgBonus;
+    switch (key) {
+      case 'str': a.str += v; break; case 'agi': a.agi += v; break;
+      case 'int': a.int_ += v; break; case 'wil': a.wil += v; break;
+      case 'hp': a.hp += v; break; case 'def': a.def_ += v; break;
+      case 'atk_pct': a.atkPct += v; break; case 'crit_rate': a.critRate += v; break;
+      case 'crit_dmg': a.critDmg += v; break; case 'arts_power': a.artsPower += v; break;
+      case 'ult_eff': a.ultEff += v; break;
+      case 'heal': case 'dmg_reduction': break;
+      case 'hp_pct': a.hpPct += v; break;
+      case 'heal_pct': break; // 치유 효율은 현재 미지원
+      case 'main_stat_pct': a.mainStatPct += v; break;
+      case 'sub_stat_pct': a.subStatPct += v; break;
+      case 'main_stat':
+        ({ 힘: 'str', 민첩: 'agi', 지능: 'int_', 의지: 'wil' })[a.main] && (a[({ 힘: 'str', 민첩: 'agi', 지능: 'int_', 의지: 'wil' })[a.main]] += v);
+        break;
+      default: if (key in DB) DB[key] += v;
+    }
+  }
+  function makeAcc(c, pot, tal) {
+    const lv = document.getElementById('gCharLv').value;
+    const base = c.stats[lv] || c.stats['90'];
+    return {
+      main: c.main, sub: c.sub,
+      str: base.str + (pot.str || 0) + (tal.str || 0),
+      agi: base.agi + (pot.agi || 0) + (tal.agi || 0),
+      int_: base.int + (pot.int || 0) + (tal.int || 0),
+      wil: base.wil + (pot.wil || 0) + (tal.wil || 0),
+      hp: base.hp, hpPct: 0, def_: 0, baseAtk: base.atk,
+      atkPct: pot.atk_pct || 0, critRate: pot.crit_rate || 0, critDmg: pot.crit_dmg || 0,
+      artsPower: 0, ultEff: 0, linkCdReduce: 0,
+      mainStatPct: 0, subStatPct: 0,
+      dmgBonus: {
+        heat_dmg: 0, cold_dmg: 0, elec_dmg: 0, nat_dmg: 0, phys_dmg: 0,
+        arts_dmg: 0, all_skill_dmg: 0, skill_dmg: 0, link_dmg: 0, ult_dmg: 0,
+        attack_dmg: 0, cold_elec_dmg: 0, stagger_target_dmg: 0, heat_nat_dmg: 0
+      },
+    };
+  }
+  function applyWpn(wpn, slotLvArr, a) {
+    if (!wpn) return;
+    (wpn.slots || []).forEach((s, si) => { applySlotKey(s.key, getWpnSlotVal(s, slotLvArr[si] || 9), a); });
+    const buffStart = (wpn.slots || []).length;
+    if (Array.isArray(wpn.buff)) {
+      // 새 형식: buff 배열 전체가 하나의 슬롯(3번 옵션)을 공유 → 동일 레벨 사용
+      const buffLv = slotLvArr[buffStart] || 9;
+      wpn.buff.forEach((b) => {
+        const bv = b.vals ? (b.vals[buffLv - 1] ?? b.max) : b.max;
+        applySlotKey(b.type, bv, a);
+      });
+    } else if (wpn.buff) {
+      // 구 형식 호환: buff/buff2 가 각각 객체
+      const bv = wpn.buff.vals ? (wpn.buff.vals[(slotLvArr[buffStart] || 9) - 1] ?? wpn.buff.max) : wpn.buff.max;
+      applySlotKey(wpn.buff.type, bv, a);
+      if (wpn.buff2) {
+        const bv2 = wpn.buff2.vals ? (wpn.buff2.vals[(slotLvArr[buffStart + 1] || 9) - 1] ?? wpn.buff2.max) : wpn.buff2.max;
+        applySlotKey(wpn.buff2.type, bv2, a);
+      }
+    }
+  }
+  function applyEquips(equipArr, forgeLvArr2D, a, setCnt) {
+    for (let si = 0; si < 4; si++) {
+      const eq = equipArr[si]; if (!eq) continue;
+      if (eq.set) setCnt[eq.set] = (setCnt[eq.set] || 0) + 1;
+      for (const [k, v] of Object.entries(getEquipStats(eq, forgeLvArr2D[si]))) applySlotKey(k, v, a);
+    }
+  }
+  function applySets(setCnt, a) {
+    for (const [s, n] of Object.entries(setCnt)) {
+      if (n < 3) continue; const e = SET_BONUS_EFFECTS[s] || {};
+      if (e.atk_pct) a.atkPct += e.atk_pct; if (e.crit_rate) a.critRate += e.crit_rate;
+      if (e.arts_power) a.artsPower += e.arts_power;
+      if (e.all_skill_dmg) a.dmgBonus.all_skill_dmg += e.all_skill_dmg;
+      if (e.link_cd_reduce) a.linkCdReduce += e.link_cd_reduce;
+    }
+  }
+  function finalizeAcc(a, c, wpn) {
+    // 주요/보조 능력치 % 보너스 적용 (올림)
+    const STAT_KEY = { 힘: 'str', 민첩: 'agi', 지능: 'int_', 의지: 'wil' };
+    const mainKey = STAT_KEY[c.main], subKey = STAT_KEY[c.sub];
+    if (mainKey && a.mainStatPct) a[mainKey] = Math.ceil(a[mainKey] * (1 + a.mainStatPct));
+    if (subKey && a.subStatPct) a[subKey] = Math.ceil(a[subKey] * (1 + a.subStatPct));
+    const mv = { 힘: a.str, 민첩: a.agi, 지능: a.int_, 의지: a.wil }[c.main] || 0;
+    const sv = { 힘: a.str, 민첩: a.agi, 지능: a.int_, 의지: a.wil }[c.sub] || 0;
+    const wpnAtk = wpn ? wpn.atk : 411;
+    const attrBonus = (1 + mv * PRIMARY_RATE + sv * SECONDARY_RATE);
+    const finalAtk = Math.round((a.baseAtk + wpnAtk) * (1 + a.atkPct) * attrBonus);
+    const baseHpWithStr = a.hp + (a.str || 0) * 5;
+    const finalHp = Math.round(baseHpWithStr * (1 + (a.hpPct || 0)));
+    return {
+      finalAtk, critRate: a.critRate, critDmg: a.critDmg, artsPower: a.artsPower, ultEff: a.ultEff,
+      dmgBonus: a.dmgBonus, linkCdReduce: a.linkCdReduce, str: a.str, agi: a.agi, int: a.int_, wil: a.wil,
+      hp: finalHp, def: a.def_
+    };
+  }
+  function calcStats(ci) {
+    const c = party[ci]; if (!c) return null;
+    const pot = getPotBonus(c, partyPotential[ci]);
+    const tal = getTalentBonus(c, partyTalentLv[ci]);
+    const a = makeAcc(c, pot, tal); const wpn = partyWeapons[ci]; const slv = partyWpnSlotLv[ci];
+    applyWpn(wpn, slv, a); const setCnt = getSetCounts(ci);
+    applyEquips(partyEquip[ci], partyForgeLv[ci], a, setCnt); applySets(setCnt, a);
+    return finalizeAcc(a, c, wpn);
+  }
+  function calcStatsForSim(c, wpn, wpnSlotLvArr, equipArr, forgeLvArr2D, potLv, talLv = 4) {
+    const pot = getPotBonus(c, potLv);
+    const tal = getTalentBonus(c, talLv);
+    const a = makeAcc(c, pot, tal);
+    const setCnt = {};
+    applyWpn(wpn, wpnSlotLvArr, a); applyEquips(equipArr, forgeLvArr2D, a, setCnt); applySets(setCnt, a);
+    return finalizeAcc(a, c, wpn);
+  }
+  function getBuffEffectsFor(ci) {
+    const out = { atk_flat: 0, atk_pct: 0, crit_rate: 0, crit_dmg: 0, all_dmg: 0 };
+    const item = BUFF_ITEM_DB.find(b => b.id === partyBuffs[ci]);
+    if (!item) return out;
+    for (const ef of item.effects || []) if (ef.type in out) out[ef.type] += ef.val;
+    return out;
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // 스펙 모달
+  // ═══════════════════════════════════════════════════════
+  function showSpecModal(ci) {
+    const c = party[ci]; if (!c) return;
+    const s = calcStats(ci); if (!s) return;
+    const crBase = parseInt(document.getElementById('gCritRate').value) / 100;
+    const cdBase = parseInt(document.getElementById('gCritDmg').value) / 100;
+    const totalCrit = Math.min(1, crBase + s.critRate);
+    const totalCD = cdBase + s.critDmg;
+    const pct = v => Math.abs(v) > 0.0001 ? '+' + (v * 100).toFixed(1) + '%' : '—';
+    const wpn = partyWeapons[ci]; const wpnSlotLvs = partyWpnSlotLv[ci];
+    const activeSets = getActiveSets(ci);
+    const db = s.dmgBonus;
+    const rows = [
+      { l: '힘', v: s.str }, { l: '민첩', v: s.agi }, { l: '지능', v: s.int }, { l: '의지', v: s.wil },
+      { l: '생명력', v: (s.hp || 0).toLocaleString() }, { l: '방어력', v: s.def > 0 ? s.def : '—' },
+      { l: '공격력', v: s.finalAtk.toLocaleString(), c: '#4ade80' },
+      { l: '치명타 확률', v: (totalCrit * 100).toFixed(1) + '%', c: '#f0c050' },
+      { l: '치명타 피해', v: (totalCD * 100).toFixed(0) + '%', c: '#f0c050' },
+      { l: '오리지늄 아츠 강도', v: s.artsPower > 0 ? '+' + s.artsPower.toFixed(0) : '0', c: '#c060ff' },
+      { l: '연계 스킬 쿨타임 감소', v: s.linkCdReduce > 0 ? pct(s.linkCdReduce) : '0' },
+      { l: '궁극기 충전 효율', v: s.ultEff > 0 ? ((1 + s.ultEff) * 100).toFixed(1) + '%' : '100%' }, { l: '불균형 효율', v: '기본' },
+      { sep: true, l: '피해 보너스' },
+      { l: '물리', v: pct(db.phys_dmg), c: '#a0b8d0' }, { l: '열기', v: pct(db.heat_dmg), c: '#ff6b35' },
+      { l: '전기', v: pct(db.elec_dmg), c: '#ffe040' }, { l: '냉기', v: pct(db.cold_dmg), c: '#60d4ff' },
+      { l: '자연', v: pct(db.nat_dmg), c: '#50e0a0' }, { l: '일반 공격 피해', v: pct(db.attack_dmg) },
+    ];
+    document.getElementById('specModalContent').innerHTML = `
+    <div style="padding-right:20px">
+      <div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:3px">${c.name}</div>
+      <div style="font-size:10px;color:${c.elemColor}">${c.element} · ${c.cls} · ${c.rarity}★ · 캐릭터 돌파 ${partyPotential[ci]}단계</div>
+      ${activeSets.length ? `<div style="font-size:10px;color:var(--gold);margin-top:2px">${activeSets.join(' / ')} 3세트 적용</div>` : ''}
+      ${wpn ? `<div style="font-size:10px;color:var(--text2);margin-top:4px">${wpn.name} ATK${wpn.atk}</div>` : ''}
+    </div>
+    <div style="border-top:1px solid var(--border);margin:10px 0"></div>
+    ${rows.map(r => r.sep
+      ? `<div style="font-size:9px;color:var(--text3);padding:6px 0 2px;letter-spacing:1px">── ${r.l} ──</div>`
+      : `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(42,42,69,.35);font-size:11px">
+          <span style="color:var(--text2)">${r.l}</span>
+          <span style="font-family:'JetBrains Mono',monospace;color:${r.c || '#fff'}">${r.v}</span>
+        </div>`).join('')}
+    ${wpn && wpn.buff ? (Array.isArray(wpn.buff)
+        ? wpn.buff.map(b => `<div style="margin-top:6px;padding:6px 8px;background:rgba(96,212,255,.07);border:1px solid rgba(96,212,255,.2);border-radius:4px;font-size:10px;color:var(--combo);line-height:1.6">⬡ ${b.header || b.type}</div>`).join('')
+        : `<div style="margin-top:10px;padding:6px 8px;background:rgba(96,212,255,.07);border:1px solid rgba(96,212,255,.2);border-radius:4px;font-size:10px;color:var(--combo);line-height:1.6">⬡ ${wpn.buff_header || ''}</div>`)
+      : ''}`;
+    document.getElementById('specModalOverlay').classList.add('open');
+  }
+  function closeSpecModal() { document.getElementById('specModalOverlay').classList.remove('open'); }
+
+  // ═══════════════════════════════════════════════════════
+  // 포맷 헬퍼
+  // ═══════════════════════════════════════════════════════
+  function fmtStat(v) {
+    if (typeof v !== 'number') return String(v);
+    if (v === 0) return '0';
+    return v > 0 && v < 10 ? '+' + (v * 100).toFixed(1) + '%' : String(Math.round(v));
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // 파티 렌더
+  // ═══════════════════════════════════════════════════════
+  function renderAll() { renderPartyRow(); updateRunBtn(); }
+
+  function renderPartyRow() {
+    const el = document.getElementById('partyRow'); el.innerHTML = '';
+    const usefulBuffs = BUFF_ITEM_DB.filter(b => b.effects.some(e => e.type in BUFF_EFF_LABELS));
+    for (let i = 0; i < 4; i++) {
+      const c = party[i]; const div = document.createElement('div');
+      if (!c) {
+        div.className = 'char-slot empty';
+        div.innerHTML = `<div style="text-align:center;color:var(--text3)"><div style="font-size:20px;margin-bottom:4px">+</div><div style="font-size:10px">캐릭터 선택</div></div>`;
+        div.onclick = () => openPicker(i); el.appendChild(div); continue;
+      }
+      div.className = 'char-slot filled';
+      const wpn = partyWeapons[i], slotLvArr = partyWpnSlotLv[i], potLv = partyPotential[i];
+      const stats = calcStats(i);
+      const activeSets = getActiveSets(i);
+
+      // 무기 목록
+      const ws = (WEAPON_DB[c.weapon] || []).sort((a, b) => b.rarity - a.rarity);
+      const wpnOpts = ws.map(w => `<option value="${w.name}"${wpn && w.name === wpn.name ? ' selected' : ''}>[${w.rarity}★] ${w.name} ATK${w.atk}</option>`).join('');
+
+      // 무기 slot + buff 각각 1~9강 선택
+      let wpnOptsHtml = '';
+      if (wpn) {
+        const allSlots = [];
+        (wpn.slots || []).forEach((s, si) => {
+          allSlots.push({ label: s.label, slotObj: s, idx: si, isBuff: false });
+        });
+        if (Array.isArray(wpn.buff) && wpn.buff.length > 0) {
+          // 새 형식: buff 배열 전체를 하나의 슬롯으로 (같은 레벨 공유)
+          allSlots.push({ label: '⬡ ' + (wpn.buff_header || keyToLabel(wpn.buff[0].type)), slotObj: wpn.buff, idx: (wpn.slots || []).length, isBuff: true, isBuffGroup: true });
+        } else if (wpn.buff) {
+          // 구 형식 호환
+          allSlots.push({ label: '⬡ ' + (wpn.buff_header || wpn.buff.type), slotObj: wpn.buff, idx: (wpn.slots || []).length, isBuff: true });
+          if (wpn.buff2) allSlots.push({ label: '⬡ ' + (wpn.buff2.header || wpn.buff2.type), slotObj: wpn.buff2, idx: (wpn.slots || []).length + 1, isBuff: true });
+        }
+        if (allSlots.length) {
+          const rowsHtml = allSlots.map(({ label, slotObj, idx, isBuff, isBuffGroup }) => {
+            const curLv = slotLvArr[idx] || 9;
+            const lvBtns = [...Array(9)].map((_, j) => {
+              const lv = j + 1;
+              const active = curLv === lv;
+              return `<button onclick="onWpnSlotLvChange(${i},${idx},${lv})" style="font-size:8px;font-family:'JetBrains Mono',monospace;padding:0px 3px;border-radius:2px;cursor:pointer;border:1px solid;line-height:15px;${active ? 'background:var(--combo);border-color:var(--combo);color:#000;font-weight:700' : 'background:var(--s4);border-color:var(--border);color:var(--text3)'}">${lv}</button>`;
+            }).join('');
+
+            // isBuffGroup: buff 배열 전체를 하나의 슬롯으로 표시 (각 항목 값 모두 나열)
+            if (isBuffGroup && Array.isArray(slotObj)) {
+              const valLines = slotObj.map(b => {
+                const bv = b.vals ? (b.vals[curLv - 1] ?? b.max) : b.max;
+                const bLabel = b.header ? b.header : keyToLabel(b.type);
+                return `<div style="display:flex;justify-content:space-between;font-size:9px;margin-bottom:1px">
+                  <span style="color:var(--combo)">${bLabel}</span>
+                  <span style="color:var(--combo);font-family:'JetBrains Mono',monospace">${fmtStat(bv)}</span>
+                </div>`;
+              }).join('');
+              return `<div style="margin-top:3px;padding-top:3px;border-top:1px solid rgba(42,42,69,.4)">
+              <div style="font-size:9px;color:var(--text3);margin-bottom:3px">${label}</div>
+              ${valLines}
+              <div style="display:flex;gap:1px;flex-wrap:nowrap;margin-top:3px">${lvBtns}</div>
+            </div>`;
+            }
+
+            const v = slotObj.vals ? (slotObj.vals[curLv - 1] ?? slotObj.max) : slotObj.max;
+            return `<div style="margin-top:3px;padding-top:3px;border-top:1px solid rgba(42,42,69,.4)">
+            <div style="display:flex;justify-content:space-between;font-size:9px;margin-bottom:2px">
+              <span style="color:${isBuff ? 'var(--combo)' : 'var(--text3)'}">${label}</span>
+              <span style="color:${isBuff ? 'var(--combo)' : '#fff'};font-family:'JetBrains Mono',monospace">${fmtStat(v)}</span>
+            </div>
+            <div style="display:flex;gap:1px;flex-wrap:nowrap">${lvBtns}</div>
+          </div>`;
+          }).join('');
+          wpnOptsHtml = `<div style="background:var(--s3);border-radius:3px;padding:4px 6px;margin-top:3px">${rowsHtml}</div>`;
+        }
+      }
+
+      // 캐릭터 돌파 버튼 0~5
+      const potBtns = [0, 1, 2, 3, 4, 5].map(p =>
+        `<button class="fg-btn${potLv === p ? ' active-pot' : ''}" onclick="onPotentialChange(${i},${p})">${p}</button>`
+      ).join('');
+      // 정예화(탤런트) 버튼 0~4
+      const talLv = partyTalentLv[i];
+      const talBtns = [0, 1, 2, 3, 4].map(t =>
+        `<button class="fg-btn${talLv === t ? ' active-pot' : ''}" onclick="onTalentChange(${i},${t})">${t}</button>`
+      ).join('');
+
+      // 장비 2×2 그리드 (forge 옵션 compact)
+      const equipCells = SLOT_TYPES.map((slotLabel, si) => {
+        const slotKey = SLOT_DB_KEY[si];
+        const items = (EQ_BY_SLOT && EQ_BY_SLOT[slotKey]) || [];
+        const curEq = partyEquip[i][si];
+        const curFg = partyForgeLv[i][si] || [0, 0, 0];
+
+        const groups = { '': ['<option value="">— 없음 —</option>'] };
+        for (const eq of items) {
+          if (!groups[eq.set]) groups[eq.set] = [];
+          groups[eq.set].push(`<option value="${eq.name}"${curEq && curEq.name === eq.name ? ' selected' : ''}>${eq.name}${eq.isVariant ? ' ◆' : ''}</option>`);
+        }
+        const eqOpts = Object.entries(groups).map(([s, opts]) =>
+          s ? `<optgroup label="◈ ${s}">${opts.join('')}</optgroup>` : opts.join('')).join('');
+
+        // forge: compact 한 줄씩 (라벨 + 0~3 선택 + 현재값)
+        let forgeHtml = '';
+        if (curEq && curEq.forge) {
+          forgeHtml = curEq.forge.map((fg, fi) => {
+            const curLv = curFg[fi] || 0;
+            const curV = getForgeVal(fg, curLv);
+            const dispV = fmtStat(curV);
+            const btns = [0, 1, 2, 3].map(f => `<button onclick="onForgeChange(${i},${si},${fi},${f})" style="font-size:8px;font-family:'JetBrains Mono',monospace;padding:0px 4px;border-radius:2px;cursor:pointer;border:1px solid;line-height:15px;${curLv === f ? 'background:var(--gold);border-color:var(--gold);color:#000;font-weight:700' : 'background:var(--s4);border-color:var(--border);color:var(--text3)'}">${f}</button>`).join('');
+            return `<div style="display:flex;align-items:center;gap:2px;margin-top:2px;min-width:0">
+            <span style="font-size:8px;color:var(--text3);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${keyToLabel(fg.label)}">${keyToLabel(fg.label)}</span>
+            <span style="display:flex;gap:1px">${btns}</span>
+            <span style="font-size:8px;font-family:'JetBrains Mono',monospace;color:var(--combo);min-width:26px;text-align:right">${dispV}</span>
+          </div>`;
+          }).join('');
+        }
+
+        return `<div style="background:var(--s3);border-radius:4px;padding:5px">
+        <div style="font-size:9px;color:var(--text3);margin-bottom:2px">${slotLabel}</div>
+        <select class="sel" onchange="onEquipChange(${i},${si},this.value)" onclick="event.stopPropagation()">${eqOpts}</select>
+        ${forgeHtml}
+      </div>`;
+      }).join('');
+
+      // 버프 아이템 (캐릭터별 compact)
+      const selBuff = partyBuffs[i];
+      const buffHtml = usefulBuffs.map(item => {
+        const isSel = selBuff === item.id;
+        const efStr = item.effects.filter(e => e.type in BUFF_EFF_LABELS)
+          .map(e => `${BUFF_EFF_LABELS[e.type]} ${e.val > 1 ? '+' + e.val : '+' + Math.round(e.val * 100) + '%'}`).join('/');
+        return `<label class="buff-opt${isSel ? ' buff-sel' : ''}" onclick="event.preventDefault();event.stopPropagation();onBuffChange(${i},${item.id})">
+        <input type="checkbox"${isSel ? ' checked' : ''} readonly style="pointer-events:none">
+        <span class="buff-opt-name">${item.name}</span>
+        <span class="buff-opt-eff">${efStr}</span>
+      </label>`;
+      }).join('');
+
+      div.innerHTML = `
+      <div style="display:flex;align-items:center;gap:5px;margin-bottom:4px">
+        <span style="font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace">${i + 1}</span>
+        <span style="font-size:13px;font-weight:700;color:#fff;flex:1">${c.name}</span>
+        <span style="font-size:9px;padding:1px 5px;border-radius:2px;border:1px solid ${c.elemColor};color:${c.elemColor}">${c.element}</span>
+        <span style="font-size:9px;padding:1px 5px;border-radius:2px;border:1px solid var(--border2);color:var(--text2)">${c.cls}</span>
+        <button onclick="removeChar(${i})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:0 2px">✕</button>
+      </div>
+      <div style="font-size:10px;color:var(--primary);font-family:'JetBrains Mono',monospace;margin-bottom:5px">최종 ATK ${stats ? stats.finalAtk.toLocaleString() : '—'}${activeSets.length ? ` · <span style="color:var(--gold)">${activeSets.join('/')} 3세트</span>` : ''}</div>
+
+      <!-- 무기 선택 -->
+      <select class="sel" style="margin-bottom:2px" onchange="onWeaponChange(${i},this.value)" onclick="event.stopPropagation()">${wpnOpts}</select>
+
+      ${wpnOptsHtml}
+
+      <!-- 캐릭터 돌파 (무기와 명확히 구분) -->
+      <div style="display:flex;align-items:center;gap:3px;margin-top:4px;margin-bottom:5px;padding:2px 4px;background:rgba(74,222,128,.05);border-radius:3px;border:1px solid rgba(74,222,128,.15)">
+        <span style="font-size:9px;color:var(--primary);flex-shrink:0">캐릭터 돌파</span>
+        <span style="display:flex;gap:2px">${potBtns}</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:3px;margin-top:3px;margin-bottom:5px;padding:2px 4px;background:rgba(96,212,255,.05);border-radius:3px;border:1px solid rgba(96,212,255,.15)">
+        <span style="font-size:9px;color:var(--combo);flex-shrink:0">정예화</span>
+        <span style="display:flex;gap:2px">${talBtns}</span>
+      </div>
+
+      <!-- 장비 2×2 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+        ${equipCells}
+      </div>
+
+      <!-- 상세 스펙 모달 버튼 -->
+      <button onclick="event.stopPropagation();showSpecModal(${i})" style="width:100%;margin-top:6px;padding:3px;background:transparent;border:1px solid var(--border);border-radius:3px;color:var(--text3);font-size:9px;cursor:pointer" onmouseover="this.style.borderColor='var(--combo)';this.style.color='var(--combo)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text3)'">📊 상세 스펙 보기</button>
+
+      <!-- 버프 아이템 (캐릭터별) -->
+      <div class="buff-inline">
+        <div class="buff-inline-hdr">🍶 버프 아이템</div>
+        <div class="buff-inline-list">${buffHtml}</div>
+      </div>`;
+
+      el.appendChild(div);
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // 버프 행 렌더 (캐릭터별)
+  // ═══════════════════════════════════════════════════════
+  function renderBuffRow() {
+    const el = document.getElementById('buffRow'); el.innerHTML = '';
+    const usefulBuffs = BUFF_ITEM_DB.filter(b => b.effects.some(e => e.type in BUFF_EFF_LABELS));
+    for (let i = 0; i < 4; i++) {
+      const c = party[i], selId = partyBuffs[i];
+      const cell = document.createElement('div');
+      cell.className = 'buff-cell';
+      const charName = c ? `<span style="color:${c.elemColor || 'var(--primary)'}">${c.name}</span>` : `슬롯 ${i + 1}`;
+      cell.innerHTML = `<div style="font-size:9px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:5px;padding-bottom:4px;border-bottom:1px solid var(--border)">${charName} 버프 아이템</div>
+      <div class="buff-list">${usefulBuffs.map(item => {
+        const sel = selId === item.id;
+        const efStr = item.effects.filter(e => e.type in BUFF_EFF_LABELS)
+          .map(e => `${BUFF_EFF_LABELS[e.type]} ${e.val > 1 ? '+' + e.val : '+' + Math.round(e.val * 100) + '%'}`).join('/');
+        return `<div class="buff-opt${sel ? ' buff-sel' : ''}" onclick="onBuffChange(${i},${item.id})">
+          <span style="flex:1;font-size:10px;color:var(--text1)">${item.name}</span>
+          <span style="font-size:8px;color:var(--text3);font-family:'JetBrains Mono',monospace;white-space:nowrap">${efStr}</span>
+        </div>`;
+      }).join('')}</div>`;
+      el.appendChild(cell);
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // 이벤트
+  // ═══════════════════════════════════════════════════════
+  function onWeaponChange(idx, name) { const c = party[idx]; if (!c) return; partyWeapons[idx] = (WEAPON_DB[c.weapon] || []).find(w => w.name === name) || null; renderAll(); if (simResult) runOptimizer(); }
+  function onWpnSlotLvChange(idx, slotIdx, lv) { partyWpnSlotLv[idx][slotIdx] = lv; renderAll(); if (simResult) runOptimizer(); }
+  function onWpnLvChange(idx, lv) { partyWpnSlotLv[idx].fill(lv); renderAll(); if (simResult) runOptimizer(); } // legacy compat
+  function onEquipChange(ci, si, name) { partyEquip[ci][si] = name ? EQUIPMENT_DB[name] || null : null; partyForgeLv[ci][si] = [0, 0, 0]; renderAll(); if (simResult) runOptimizer(); }
+  function onForgeChange(ci, si, fi, v) { partyForgeLv[ci][si][fi] = parseInt(v) || 0; renderAll(); if (simResult) runOptimizer(); }
+  function onPotentialChange(idx, v) { partyPotential[idx] = parseInt(v) || 0; renderAll(); if (simResult) runOptimizer(); }
+  function onTalentChange(idx, v) { partyTalentLv[idx] = parseInt(v) || 0; renderAll(); if (simResult) runOptimizer(); }
+  function onBuffChange(ci, id) { partyBuffs[ci] = partyBuffs[ci] === id ? null : id; renderAll(); if (simResult) runOptimizer(); }
+  function removeChar(idx) { party[idx] = null; partyWeapons[idx] = null; partyWpnSlotLv[idx] = Array(8).fill(9); partyEquip[idx] = [null, null, null, null]; partyForgeLv[idx] = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]; partyPotential[idx] = 0; partyBuffs[idx] = null; renderAll(); }
+  function onSettingChange() { renderAll(); renderEnemyGrid(); if (simResult) runOptimizer(); }
+
+  // ═══════════════════════════════════════════════════════
+  // 피커
+  // ═══════════════════════════════════════════════════════
+  function openPicker(idx) { activeSlot = idx; document.getElementById('charPicker').classList.add('open'); renderCharGrid(); }
+  function closePicker() { document.getElementById('charPicker').classList.remove('open'); activeSlot = -1; }
+  document.getElementById('pickerCloseBtn').onclick = closePicker;
+  document.getElementById('charPicker').addEventListener('click', e => { if (e.target === document.getElementById('charPicker')) closePicker(); });
+  document.getElementById('pickerFilters').querySelectorAll('.filter-btn').forEach(btn => {
+    btn.onclick = () => { document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); pickerFilter = btn.dataset.filter; renderCharGrid(); };
+  });
+  function renderCharGrid() {
+    let chars = [...CHAR_DB];
+    if (pickerFilter === 'r6') chars = chars.filter(c => c.rarity === 6);
+    else if (pickerFilter === 'r5') chars = chars.filter(c => c.rarity === 5);
+    else if (pickerFilter === 'r4') chars = chars.filter(c => c.rarity === 4);
+    else if (pickerFilter.startsWith('e-')) chars = chars.filter(c => c.element === pickerFilter.slice(2));
+    else if (pickerFilter.startsWith('c-')) chars = chars.filter(c => c.cls === pickerFilter.slice(2));
+    const grid = document.getElementById('charGrid'); grid.innerHTML = '';
+    chars.forEach(c => {
+      const inParty = party.some(p => p && p.name === c.name);
+      const card = document.createElement('div');
+      card.className = 'char-pick-card' + (inParty ? ' disabled' : '');
+      card.innerHTML = `<div class="card-rarity${c.rarity === 6 ? '' : c.rarity === 5 ? ' r5' : ' r4'}">${'★'.repeat(c.rarity)}</div><div class="card-name">${c.name}</div><div class="card-elem" style="color:${c.elemColor}">${c.element} · ${c.cls}</div>`;
+      if (!inParty) card.onclick = () => {
+        party[activeSlot] = c;
+        partyWeapons[activeSlot] = (WEAPON_DB[c.weapon] || []).sort((a, b) => b.rarity - a.rarity)[0] || null;
+        partyWpnSlotLv[activeSlot] = Array(8).fill(9); partyEquip[activeSlot] = [null, null, null, null];
+        partyForgeLv[activeSlot] = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]];
+        partyPotential[activeSlot] = 0; partyBuffs[activeSlot] = null;
+        closePicker(); renderAll();
+      };
+      grid.appendChild(card);
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // 적 그리드
+  // ═══════════════════════════════════════════════════════
+  function renderEnemyGrid() {
+    const lv = parseInt(document.getElementById('gEnemyLv').value);
+    const grid = document.getElementById('enemyGrid'); grid.innerHTML = '';
+    ALL_ENEMIES.forEach(e => {
+      const stat = e.stats[lv] || e.stats[80] || e.stats[90] || { hp: 0, def: 100 };
+      const totalHp = e.phase_ids ? stat.hp : stat.hp * ((e.revival_count ?? 0) + 1);
+      const card = document.createElement('div');
+      card.className = 'enemy-card' + (e === selectedEnemy ? ' selected' : '');
+      const tag = e.phase_ids ? '전페이즈' : e.revival_count > 0 ? `${e.revival_count + 1}킬` : '';
+      card.innerHTML = `<div class="enemy-name">${e.name}</div>
+      <div class="enemy-sub">HP ${(totalHp / 10000).toFixed(1)}만${tag ? ' · ' + tag : ''}</div>
+      <div class="enemy-sub">불균형 ${e.maxStagger} · DEF ${stat.def}</div>`;
+      card.onclick = () => { selectedEnemy = e; renderEnemyGrid(); updateRunBtn(); };
+      grid.appendChild(card);
+    });
+  }
+  function updateRunBtn() { document.getElementById('runBtn').disabled = party.filter(Boolean).length < 1 || !selectedEnemy; }
+
+  // ═══════════════════════════════════════════════════════
+  // init
+  // ═══════════════════════════════════════════════════════
+  function init() {
+    ALL_ENEMIES = [...SELECTABLE_ENEMIES];
+    if (typeof MARBLE_AGGEL_COMBINED !== 'undefined') ALL_ENEMIES.push(MARBLE_AGGEL_COMBINED);
+    renderAll(); renderEnemyGrid();
+  }
+  window.openPicker = openPicker; window.closePicker = closePicker; window.onWeaponChange = onWeaponChange;
+  window.onWpnLvChange = onWpnLvChange; window.onWpnSlotLvChange = onWpnSlotLvChange; window.onEquipChange = onEquipChange; window.onForgeChange = onForgeChange;
+  window.onPotentialChange = onPotentialChange; window.onTalentChange = onTalentChange; window.onBuffChange = onBuffChange; window.onSettingChange = onSettingChange;
+  window.renderEnemyGrid = renderEnemyGrid; window.showSpecModal = showSpecModal; window.closeSpecModal = closeSpecModal;
+  window.removeChar = removeChar;
+
+
+  // ═══════════════════════════════════════════════════════
+  // 시뮬레이터
+  // ═══════════════════════════════════════════════════════
+  function getMult(c, skillKey, lv) {
+    return (c.mults[String(lv)] || c.mults['12'])[skillKey] || 0;
+  }
+
+  // ── 현재 실행 중인 워커 (중복 실행 방지) ─────────────────────────
+  let _activeWorker = null;
+
+  // ── 진행 UI 헬퍼 ─────────────────────────────────────────────────
+  function setProgress(pct, note) {
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressPct').textContent = pct + '%';
+    if (note !== undefined) document.getElementById('progressNote').textContent = note;
+  }
+  function showProgress(show) {
+    document.getElementById('progressWrap').classList.toggle('visible', show);
+  }
+
+  // ── 캐릭터 준비 데이터를 직렬화하여 워커에 전달 ─────────────────
+  function buildWorkerParams() {
+    const skillLv      = parseInt(document.getElementById('gSkillLv').value);
+    const critRateBase = parseInt(document.getElementById('gCritRate').value) / 100;
+    const critDmgBase  = parseInt(document.getElementById('gCritDmg').value) / 100;
+    const simTime      = parseInt(document.getElementById('gSimTime').value);
+    const enemyLv      = parseInt(document.getElementById('gEnemyLv').value);
+    const optUltFull   = document.getElementById('gUltFull').value === '1';
+
+    const chars  = party.filter(Boolean);
+    const enemy  = selectedEnemy;
+    const totalHp = getTotalHp(enemy.id, enemyLv);
+    const defMult = calcDefMultiplier(getEnemyStats(enemy.id, enemyLv).def || 100);
+
+    // 캐릭터별 사전 계산
+    const charData = chars.map((c, i) => {
+      const slotIdx   = party.indexOf(c);
+      const weapon    = partyWeapons[slotIdx] || (WEAPON_DB[c.weapon] || []).sort((a, b) => b.rarity - a.rarity)[0];
+      const wpnLv     = partyWpnSlotLv[slotIdx] || [9, 9, 9, 9];
+      const equipArr  = partyEquip[slotIdx] || [null, null, null, null];
+      const forgeLvArr= partyForgeLv[slotIdx] || [0, 0, 0, 0];
+      const potLv     = partyPotential[slotIdx] || 0;
+      const talLv     = partyTalentLv[slotIdx]  || 0;
+      const stats     = calcStatsForSim(c, weapon, wpnLv, equipArr, forgeLvArr, potLv, talLv);
+      const buffEff   = getBuffEffectsFor(slotIdx);
+
+      const finalAtkBase = stats.finalAtk;
+      const finalAtk = Math.round(finalAtkBase * (1 + (buffEff.atk_pct || 0)) *
+                         (1 + (finalAtkBase > 0 ? (buffEff.atk_flat || 0) / finalAtkBase : 0)));
+      const crit_r = Math.min(1.0, critRateBase + stats.critRate + (buffEff.crit_rate || 0));
+      const crit_d = critDmgBase + (buffEff.crit_dmg || 0);
+      const critMult = calcCritMultiplier(crit_r, crit_d);
+
+      const elemKey  = { 물리:'phys_dmg', 열기:'heat_dmg', 냉기:'cold_dmg', 전기:'elec_dmg', 자연:'nat_dmg' }[c.element] || 'phys_dmg';
+      const elemBonus = (stats.dmgBonus[elemKey] || 0) + (stats.dmgBonus.arts_dmg || 0);
+      const allSkill  = (stats.dmgBonus.all_skill_dmg || 0) + (buffEff.all_dmg || 0);
+      const baseLinkCd = c.link_cd * (1 - (stats.linkCdReduce || 0));
+
+      // 스킬 배율 (워커로 전달)
+      const getMult = (key) => (c.mults[String(skillLv)] || c.mults['12'])[key] || 0;
+
+      // 스태거
+      const timing = TIMING_MAP.get(c.name);
+      const staggerPerCycle = timing ? timing.stagger_per_cycle : 0;
+
+      return {
+        // 식별 (렌더링용 포함)
+        name: c.name, element: c.element,
+        elemColor: c.elemColor, weapon: c.weapon, cls: c.cls, rarity: c.rarity,
+        // 타이밍
+        cycle: c.cycle, skill_dur: c.skill_dur || 0, link_dur: c.link_dur || 0, ult_dur: c.ult_dur || 0,
+        // 게이지/비용 — DB에 없는 필드는 원본 simulate()의 fallback과 동일하게 처리
+        ult_cost: c.ult_cost,
+        link_cd: c.link_cd,
+        skill_gauge:          c.skill_gauge          || 6.5,
+        link_gauge:           c.link_gauge            || 10,
+        ult_gauge_per_basic:  c.ult_gauge_per_basic   || 10,
+        sp_gain:              c.sp_gain               || 0,
+        ult_sp_gain:          c.ult_sp_gain           || 0,
+        link_sp_gain:         c.link_sp_gain          || 0,
+        skill_sp_gain:        c.skill_sp_gain         || 0,
+        // 사전 계산값
+        finalAtk, critMult, elemBonus,
+        skillBonus: (stats.dmgBonus.skill_dmg || 0) + allSkill,
+        linkBonus:  (stats.dmgBonus.link_dmg  || 0) + allSkill,
+        ultBonus:   (stats.dmgBonus.ult_dmg   || 0) + allSkill,
+        baseLinkCd,
+        // 배율
+        ultMult: getMult('ult'), skillMult: getMult('battle'),
+        linkMult: getMult('combo'), basicMult: getMult('basic'),
+        // 스태거
+        staggerPerCycle,
+        // mults 원본 보관
+        mults: c.mults,
+      };
+    });
+
+    // 서포터 버프 설정 (파티 내 해당 캐릭만)
+    const supporters = [];
+    chars.forEach((c, idx) => {
+      const cfg = SUPPORTER_BUFF_CFG[c.name];
+      if (cfg) supporters.push({ idx, ...cfg });
+    });
+
+    // 초기 빔 상태 — 워커의 상태 구조(slots, buffExpiries)에 맞춤
+    const initialSlots = chars.map((c, i) => ({
+      nextTime:   i * 0.12,
+      ultGauge:   optUltFull ? c.ult_cost : 0,
+      linkCdEnd:  i * 0.1,
+      baseLinkCd: charData[i].baseLinkCd,
+    }));
+
+    return {
+      chars: charData,
+      supporters,
+      defMult,
+      staggerData: {
+        maxStagger:    enemy.maxStagger || 0,
+        execRecovery:  enemy.executionRecovery || 100,
+        breakDuration: enemy.staggerBreakDuration || 10,
+      },
+      totalHp,
+      simTime,
+      initialState: {
+        slots:               initialSlots,
+        buffExpiries:        chars.map(() => 0),  // 인덱스별 버프 만료 시간
+        teamSp:              optUltFull ? SP_SYSTEM.max_sp : SP_SYSTEM.initial_sp,
+        lastSpTime:          0,
+        spResumeTime:        0,
+        totalDmg:            0,
+        remainingHp:         totalHp,
+        staggerCurrent:      0,
+        staggerBreakEndTime: -1,
+        executionDone:       false,
+        events:              [],
+        skillUsed: 0, linkUsed: 0, ultUsed: 0, basicUsed: 0,
+      },
+      sp: SP_SYSTEM,
+      timeLimitMs: 5000,
+    };
+  }
+
+  window.runOptimizer = function () {
+    const btn = document.getElementById('runBtn');
+
+    // 이전 워커 종료
+    if (_activeWorker) { _activeWorker.terminate(); _activeWorker = null; }
+
+    btn.disabled = true;
+    btn.textContent = '🔍 최적화 중...';
+    showProgress(true);
+    setProgress(0, '빔 서치 시작 중...');
+    document.getElementById('progressLabel').textContent = '🔍 빔 서치 최적화 중...';
+
+    let params;
+    try { params = buildWorkerParams(); }
+    catch (e) { console.error(e); alert('파라미터 오류: ' + e.message); finishRun(); return; }
+
+    const worker = new Worker('./beam_worker.js');
+    _activeWorker = worker;
+
+    worker.onmessage = (e) => {
+      const msg = e.data;
+      if (msg.type === 'progress') {
+        const kt = msg.bestKillTime ? `현재 최선: ${msg.bestKillTime.toFixed(2)}s` : '탐색 중...';
+        setProgress(msg.pct, kt);
+      } else if (msg.type === 'done') {
+        setProgress(100, '완료!');
+        simResult = msg.result;
+        // 워커의 경량 charData 대신 원본 전체 캐릭터 객체 사용 (렌더링 필드 완전 호환)
+        simResult.chars = party.filter(Boolean);
+        renderResults(simResult);
+        finishRun();
+      } else if (msg.type === 'error') {
+        console.error('Worker 오류:', msg.msg);
+        // 워커 실패 시 그리디로 폴백
+        document.getElementById('progressLabel').textContent = '⚠ 폴백: 그리디 시뮬레이션';
+        try { simResult = simulate(); renderResults(simResult); } catch (_) {}
+        finishRun();
+      }
+    };
+
+    worker.onerror = (e) => {
+      console.error('Worker 오류:', e);
+      try { simResult = simulate(); renderResults(simResult); } catch (_) {}
+      finishRun();
+    };
+
+    worker.postMessage({ type: 'start', params });
+
+    function finishRun() {
+      btn.disabled = false;
+      btn.textContent = '⚡ 최적 딜 사이클 계산';
+      setTimeout(() => showProgress(false), 1500);
+      if (_activeWorker === worker) _activeWorker = null;
+    }
+  };
+
+  function simulate() {
+    const skillLv = parseInt(document.getElementById('gSkillLv').value);
+    const critRateBase = parseInt(document.getElementById('gCritRate').value) / 100;
+    const critDmgBase = parseInt(document.getElementById('gCritDmg').value) / 100;
+    const simTime = parseInt(document.getElementById('gSimTime').value);
+    const enemyLv = parseInt(document.getElementById('gEnemyLv').value);
+    const optUltFull = document.getElementById('gUltFull').value === '1';
+    const optPrecharge = optUltFull; // SP도 동일 설정 사용
+
+    const chars = party.filter(Boolean);
+    const enemy = selectedEnemy;
+
+    // 적 HP (페이즈/부활 고려)
+    const totalHp = getTotalHp(enemy.id, enemyLv);
+    const defMult = calcDefMultiplier(getEnemyStats(enemy.id, enemyLv).def || 100);
+
+    // 버프 아이템 효과
+    // 버프는 캐릭터별로 적용 (getBuffEffectsFor(charIdx))
+
+    // 서포터 버프는 동적으로 추적 (getLiveMults 함수로 계산)
+    // — SUPPORTER_BUFF_CFG 참조, 실제 스킬 사용 시점에 buffExpiry 갱신
+
+    // 캐릭터별 초기 상태
+    const states = chars.map((c, i) => {
+      const slotIdx = party.indexOf(c);
+      const weapon = partyWeapons[slotIdx] || (WEAPON_DB[c.weapon] || []).sort((a, b) => b.rarity - a.rarity)[0];
+      const wpnLv = partyWpnSlotLv[slotIdx] || [9, 9, 9, 9];
+      const equipArr = partyEquip[slotIdx] || [null, null, null, null];
+      const forgeLvArr = partyForgeLv[slotIdx] || [0, 0, 0, 0];
+      const potLv = partyPotential[slotIdx] || 0;
+      const talLv = partyTalentLv[slotIdx] || 0;
+      const stats = calcStatsForSim(c, weapon, wpnLv, equipArr, forgeLvArr, potLv, talLv);
+
+      const finalAtkBase = stats.finalAtk;
+      const buffEff = getBuffEffectsFor(slotIdx);
+      const charAtkPct = (buffEff.atk_pct || 0);
+      const atkFlatBonus = finalAtkBase > 0 ? (buffEff.atk_flat || 0) / finalAtkBase : 0;
+      const finalAtk = Math.round(finalAtkBase * (1 + charAtkPct) * (1 + atkFlatBonus));
+      const crit_r = Math.min(1.0, critRateBase + stats.critRate + (buffEff.crit_rate || 0));
+      const crit_d = critDmgBase + (buffEff.crit_dmg || 0);
+      const critMult = calcCritMultiplier(crit_r, crit_d);
+
+      const elemKey = { 물리: 'phys_dmg', 열기: 'heat_dmg', 냉기: 'cold_dmg', 전기: 'elec_dmg', 자연: 'nat_dmg' }[c.element] || 'phys_dmg';
+      const elemBonus = (stats.dmgBonus[elemKey] || 0) + (stats.dmgBonus.arts_dmg || 0);
+      const allSkill = (stats.dmgBonus.all_skill_dmg || 0) + (buffEff.all_dmg || 0);
+      const skillB = (stats.dmgBonus.skill_dmg || 0) + allSkill;
+      const linkB = (stats.dmgBonus.link_dmg || 0) + allSkill;
+      const ultB = (stats.dmgBonus.ult_dmg || 0) + allSkill;
+
+      // 링크 쿨다운: 세트 경감 적용 (stats.linkCdReduce에 이미 반영됨)
+      const baseLinkCd = c.link_cd * (1 - (stats.linkCdReduce || 0));
+
+      return {
+        char: c,
+        finalAtk,
+        critMult,
+        elemBonus, skillBonus: skillB, linkBonus: linkB, ultBonus: ultB,
+        // 공유 SP는 아래서 관리, 개별 궁극기 에너지
+        ultGauge: optUltFull ? c.ult_cost : 0,
+        linkCdEnd: i * 0.1,  // 절대 시간 (초)
+        nextTime: i * 0.12,
+        baseLinkCd,
+        buffExpiry: 0,       // 서포터 버프 만료 시간 (t < buffExpiry 이면 버프 활성)
+      };
+    });
+
+    // 스태거 트래킹 (처형 기회 감지)
+    const enemyMaxStagger = enemy.maxStagger || 0;
+    const execRecovery = enemy.executionRecovery || 100;
+    let staggerCurrent = 0;
+    let staggerBreakEndTime = -1;
+    let executionDoneThisBreak = false;
+
+    // 라이브 서포터 버프 배율 계산 (호출 시각 t 기준 활성 버프 합산)
+    function getLiveMults(t) {
+      let ampMult = 1.0, atkMult = 1.0;
+      states.forEach(s => {
+        const cfg = SUPPORTER_BUFF_CFG[s.char.name];
+        if (cfg && t < s.buffExpiry) {
+          if (cfg.type === 'amp') ampMult *= cfg.val;
+          else if (cfg.type === 'atk') atkMult *= (1 + cfg.val);
+        }
+      });
+      return { ampMult, atkMult };
+    }
+
+    // 팀 공유 SP
+    let teamSp = optPrecharge ? SP_SYSTEM.max_sp : SP_SYSTEM.initial_sp;
+    let lastSpTime = 0;       // SP 회복 마지막 처리 시간
+    let spResumeTime = 0;     // SP 회복 정지 종료 시간 (스킬/연계 사용 후 일시 정지)
+
+    function advanceSp(toTime) {
+      if (toTime <= lastSpTime) return;
+      // 정지 구간을 제외한 실질 회복 시간만 계산
+      const regenFrom = Math.max(lastSpTime, spResumeTime);
+      const regenDt   = Math.max(0, toTime - regenFrom);
+      if (regenDt > 0) teamSp = Math.min(SP_SYSTEM.max_sp, teamSp + regenDt * SP_SYSTEM.regen_rate);
+      lastSpTime = toTime;
+    }
+
+    // 이벤트 큐 시뮬레이션
+    const events = [];
+    let totalDmg = 0;
+    const charDmg = {};
+    const typeDmg = { basic: 0, skill: 0, link: 0, ult: 0 };
+    let skillUsed = 0, linkUsed = 0, ultUsed = 0, basicUsed = 0;
+    let remainingHp = totalHp;
+    chars.forEach(c => { charDmg[c.name] = 0; });
+
+    const pq = states.map(s => ({ time: s.nextTime, idx: states.indexOf(s) }));
+
+    while (pq.length && remainingHp > 0) {
+      pq.sort((a, b) => a.time - b.time);
+      const ev = pq.shift();
+      const t = ev.time;
+      if (t >= simTime) break;
+
+      // SP 시간 경과 반영
+      advanceSp(t);
+
+      const s = states[ev.idx];
+      const c = s.char;
+      const linkReady = t >= s.linkCdEnd;
+
+      let action, dur, dmg = 0, actionLabel, actionTag;
+
+      // 우선순위: 궁 > 연계 > 배틀 > 기본
+      const ultMult   = getMult(c, 'ult',    skillLv);
+      const skillMult = getMult(c, 'battle', skillLv);
+      const linkMult  = getMult(c, 'combo',  skillLv);
+      const basicMult = getMult(c, 'basic',  skillLv);
+
+      // 라이브 서포터 버프 (이 액션 시점 기준)
+      const { ampMult, atkMult } = getLiveMults(t);
+      const liveAtk = s.finalAtk * atkMult; // 아델리아/여풍 ATK% 적용
+
+      if (s.ultGauge >= c.ult_cost && c.ult_dur > 0) {
+        // 조건: 배율이 0이어도 ult_dur > 0이면 발동 (버프형 궁극기 포함)
+        action = 'ult'; dur = c.ult_dur;
+        dmg = ultMult > 0 ? calcSkillDamage(liveAtk, ultMult, s.critMult, defMult, s.elemBonus, s.ultBonus, ampMult) : 0;
+        s.ultGauge = 0;
+        teamSp = Math.min(SP_SYSTEM.max_sp, teamSp + 10 + (c.ult_sp_gain || 0));
+        // 서포터 버프 갱신
+        const ultCfg = SUPPORTER_BUFF_CFG[c.name];
+        if (ultCfg && ultCfg.trigger === 'ult') s.buffExpiry = t + ultCfg.duration;
+        ultUsed++; actionLabel = '궁극기'; actionTag = 'tag-ult';
+
+      } else if (linkReady && t > 1.5 && linkMult > 0) {
+        action = 'link'; dur = c.link_dur;
+        dmg = calcSkillDamage(liveAtk, linkMult, s.critMult, defMult, s.elemBonus, s.linkBonus, ampMult);
+        s.linkCdEnd = t + s.baseLinkCd;
+        teamSp = Math.min(SP_SYSTEM.max_sp, teamSp + 20 + (c.link_sp_gain || 0));
+        s.ultGauge = Math.min(c.ult_cost, s.ultGauge + (c.link_gauge || 10));
+        spResumeTime = t + SP_SYSTEM.link_regen_pause; // 연계 후 SP 회복 정지
+        // 서포터 버프 갱신
+        const linkCfg = SUPPORTER_BUFF_CFG[c.name];
+        if (linkCfg && linkCfg.trigger === 'link') s.buffExpiry = t + linkCfg.duration;
+        linkUsed++; actionLabel = '연계 스킬'; actionTag = 'tag-link';
+
+      } else if (teamSp >= SP_SYSTEM.skill_cost && c.skill_dur > 0) {
+        // 조건: 배율이 0이어도 skill_dur > 0이면 발동 (버프형 배틀스킬 포함)
+        action = 'skill'; dur = c.skill_dur;
+        dmg = skillMult > 0 ? calcSkillDamage(liveAtk, skillMult, s.critMult, defMult, s.elemBonus, s.skillBonus, ampMult) : 0;
+        teamSp -= SP_SYSTEM.skill_cost;
+        teamSp = Math.min(SP_SYSTEM.max_sp, teamSp + (c.skill_sp_gain || 0));
+        s.ultGauge = Math.min(c.ult_cost, s.ultGauge + (c.skill_gauge || 6.5));
+        spResumeTime = t + SP_SYSTEM.skill_regen_pause; // 배틀스킬 후 SP 회복 정지
+        // 서포터 버프 갱신
+        const skillCfg = SUPPORTER_BUFF_CFG[c.name];
+        if (skillCfg && skillCfg.trigger === 'skill') s.buffExpiry = t + skillCfg.duration;
+        skillUsed++; actionLabel = '배틀 스킬'; actionTag = 'tag-skill';
+
+      } else {
+        // 스태거 브레이크 중 처형 (첫 번째 캐릭터만, 브레이크당 1회)
+        if (enemyMaxStagger > 0 && t < staggerBreakEndTime && !executionDoneThisBreak) {
+          action = 'ult'; dur = 0.8;
+          dmg = 0;
+          teamSp = Math.min(SP_SYSTEM.max_sp, teamSp + execRecovery);
+          executionDoneThisBreak = true;
+          staggerCurrent = 0;
+          ultUsed++; actionLabel = '처형'; actionTag = 'tag-ult';
+          events.push({ time: t, duration: dur, charName: c.name, element: c.element, action: 'exec', actionLabel: '⚡처형', actionTag: 'tag-ult', dmg: 0, sp: Math.round(teamSp) });
+          pq.push({ time: t + dur + 0.03, idx: ev.idx });
+          continue;
+        }
+        // 기본 공격
+        action = 'basic'; dur = c.cycle;
+        dmg = calcSkillDamage(liveAtk, basicMult, s.critMult, defMult, s.elemBonus, 0, ampMult);
+        teamSp = Math.min(SP_SYSTEM.max_sp, teamSp + c.sp_gain);
+        s.ultGauge = Math.min(c.ult_cost, s.ultGauge + (c.ult_gauge_per_basic || 10));
+        // 스태거 누적 — 캐릭터별 실측값 사용 (TIMING_MAP)
+        if (enemyMaxStagger > 0 && t >= staggerBreakEndTime) {
+          const timing = TIMING_MAP.get(c.name);
+          const staggerPerCycle = timing ? timing.stagger_per_cycle : Math.max(8, enemyMaxStagger / 25);
+          staggerCurrent += staggerPerCycle;
+          if (staggerCurrent >= enemyMaxStagger) {
+            staggerBreakEndTime = t + (enemy.staggerBreakDuration || 10);
+            executionDoneThisBreak = false;
+            staggerCurrent = 0;
+          }
+        }
+        basicUsed++; actionLabel = '기본 공격'; actionTag = 'tag-basic';
+      }
+
+      totalDmg += dmg;
+      charDmg[c.name] = (charDmg[c.name] || 0) + dmg;
+      typeDmg[action] = (typeDmg[action] || 0) + dmg;
+      remainingHp = Math.max(0, remainingHp - dmg);
+
+      events.push({ time: t, duration: dur, charName: c.name, element: c.element, action, actionLabel, actionTag, dmg, sp: Math.round(teamSp) });
+      pq.push({ time: t + dur + 0.03, idx: ev.idx });
+      if (remainingHp <= 0) break;
+    }
+
+    const actualTime = events.length ? events[events.length - 1].time : simTime;
+    const killTime = remainingHp <= 0 ? actualTime : null;
+    const dps = actualTime > 0 ? Math.round(totalDmg / actualTime) : 0;
+
+    return { events, totalDmg, dps, killTime, simTime: Math.min(actualTime, simTime), charDmg, typeDmg, skillUsed, linkUsed, ultUsed, basicUsed, remainingHp, totalHp, chars };
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // 결과 렌더링
+  // ═══════════════════════════════════════════════════════
+  function renderResults(r) {
+    document.getElementById('results').classList.add('visible');
+
+    const killStr = `${r.killTime ? r.killTime.toFixed(1) : '>' + r.simTime.toFixed(0)}s`;
+    const skillStr = `${r.skillUsed}S · ${r.linkUsed}L · ${r.ultUsed}U`;
+
+    // 결과 헤더에 "빔 서치 최적화" 배지 표시
+    let resultHeader = document.querySelector('.results .section-label');
+    if (resultHeader) {
+      resultHeader.innerHTML = '시뮬레이션 결과 <span style="font-size:9px;font-weight:400;letter-spacing:0;color:var(--primary);background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.3);border-radius:3px;padding:1px 6px;margin-left:6px">⚡ 빔 서치 최적화</span>';
+    }
+
+    // 결과 요약
+    document.getElementById('rTotalDmg').textContent = (r.totalDmg / 10000).toFixed(1);
+    document.getElementById('rDps').textContent = r.dps.toLocaleString();
+    const rTimeEl = document.getElementById('rTime');
+    rTimeEl.textContent = killStr;
+    rTimeEl.style.color = r.killTime ? 'var(--primary)' : '#ff4040';
+    document.getElementById('rSkills').textContent = skillStr;
+
+    // HP 바 (처치 못했을 때)
+    let hpWrap = document.getElementById('rHpWrap');
+    if (!hpWrap) {
+      hpWrap = document.createElement('div');
+      hpWrap.id = 'rHpWrap';
+      document.querySelector('.summary-grid').after(hpWrap);
+    }
+    if (!r.killTime) {
+      const hpPct = Math.max(0, r.remainingHp / r.totalHp * 100);
+      hpWrap.innerHTML = `<div style="margin-bottom:12px;background:var(--s3);border:1px solid var(--border);border-radius:6px;padding:10px">
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text2);margin-bottom:6px"><span>HP 잔량 — <span style="color:var(--bright)">${hpPct.toFixed(1)}%</span></span><span style="font-family:'JetBrains Mono',monospace">${r.remainingHp.toLocaleString()} / ${r.totalHp.toLocaleString()}</span></div>
+      <div style="height:6px;background:var(--s4);border-radius:3px;overflow:hidden">
+        <div style="height:100%;width:${hpPct}%;background:#ff4040"></div>
+      </div>
+    </div>`;
+    } else {
+      hpWrap.innerHTML = '';
+    }
+
+    // 타임라인 정보 텍스트
+    const tlInfoEl = document.getElementById('tlInfo');
+    if (tlInfoEl) tlInfoEl.textContent = `${r.simTime.toFixed(1)}s · SP 공유 시스템`;
+
+    // 캐릭터 기여
+    const contrib = document.getElementById('charContrib');
+    contrib.innerHTML = '';
+    const sorted = [...r.chars].sort((a, b) => (r.charDmg[b.name] || 0) - (r.charDmg[a.name] || 0));
+    const maxDmg = Math.max(...sorted.map(c => r.charDmg[c.name] || 0));
+    sorted.forEach((c, i) => {
+      const dmg = r.charDmg[c.name] || 0;
+      const pct = r.totalDmg > 0 ? (dmg / r.totalDmg * 100) : 0;
+      const barPct = maxDmg > 0 ? (dmg / maxDmg * 100) : 0;
+      const color = CHAR_COLORS[i % CHAR_COLORS.length];
+      const card = document.createElement('div');
+      card.className = 'char-contrib';
+      card.innerHTML = `<div class="cc-head">
+      <div><div class="cc-name">${c.name}</div>
+      <div class="cc-sub" style="color:${c.elemColor}">${c.element} · ${c.cls}</div></div>
+      <div style="text-align:right"><div class="cc-pct" style="color:${color}">${pct.toFixed(1)}%</div>
+      <div class="cc-sub">${(dmg / 10000).toFixed(1)}만 딜 · ${Math.round(dmg / r.simTime).toLocaleString()} DPS</div></div>
+    </div>
+    <div class="cc-bar"><div class="cc-bar-fill" style="width:${barPct}%;background:${color}"></div></div>`;
+      contrib.appendChild(card);
+    });
+
+    // 타입별
+    const tb = document.getElementById('typeDmgBreakdown');
+    tb.innerHTML = '';
+    [{ key: 'basic', label: '기본 공격', color: '#60d4ff' }, { key: 'skill', label: '배틀 스킬', color: '#ff6b35' },
+    { key: 'link', label: '연계 스킬', color: '#c060ff' }, { key: 'ult', label: '궁극기', color: '#f0c050' }].forEach(t => {
+      const v = r.typeDmg[t.key] || 0;
+      const pct = r.totalDmg > 0 ? (v / r.totalDmg * 100) : 0;
+      tb.innerHTML += `<div class="dmg-bar-row">
+      <div class="dmg-bar-label">${t.label}</div>
+      <div class="dmg-bar-track"><div class="dmg-bar-fill" style="width:${pct}%;background:${t.color}"></div></div>
+      <div class="dmg-bar-pct">${pct.toFixed(1)}%</div>
+      <div class="dmg-bar-val">${(v / 10000).toFixed(1)}만</div></div>`;
+    });
+
+    // 로테이션
+    const rotList = document.getElementById('rotList');
+    rotList.innerHTML = '';
+    r.events.slice(0, 80).forEach((ev, idx) => {
+      const item = document.createElement('div');
+      item.className = 'rot-item';
+      const tagClass = ev.action === 'basic' ? 'basic' : ev.action === 'skill' ? 'skill' : ev.action === 'link' ? 'link' : ev.action === 'ult' || ev.action === 'exec' ? 'ult' : '';
+      item.innerHTML = `<div class="rot-idx">${idx + 1}</div>
+      <div class="rot-time">${ev.time.toFixed(2)}s</div>
+      <div class="rot-char" style="color:${ELEM_COLORS[ev.element] || '#fff'}">${ev.charName}</div>
+      <div class="rot-action"><span class="rot-tag ${tagClass}">${ev.actionLabel}</span></div>
+      <div class="rot-dmg">${ev.dmg > 0 ? ev.dmg.toLocaleString() : '—'}</div>
+      <div class="rot-dmg" style="color:var(--text3)">SP:${ev.sp}</div>`;
+      rotList.appendChild(item);
+    });
+    if (r.events.length > 80) {
+      const m = document.createElement('div');
+      m.style.cssText = 'text-align:center;padding:8px;font-size:10px;color:var(--text3)';
+      m.textContent = `... 외 ${r.events.length - 80}개 액션`;
+      rotList.appendChild(m);
+    }
+
+    setTimeout(() => drawTimeline(r), 50);
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // 타임라인 캔버스
+  // ═══════════════════════════════════════════════════════
+  function drawTimeline(r) {
+    const canvas = document.getElementById('tl');
+    if (!canvas) return;
+    const W = canvas.parentElement.offsetWidth || 900;
+    canvas.width = W;
+    const ROW_H = 34, HEADER = 22, PL = 105;
+    const H = HEADER + r.chars.length * ROW_H + 4;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#08080f'; ctx.fillRect(0, 0, W, H);
+
+    const totalT = r.simTime;
+    const pxPerS = (W - PL - 10) / totalT;
+    const ACOLORS = { basic: '#60d4ff', skill: '#ff6b35', link: '#c060ff', ult: '#f0c050' };
+
+    for (let s = 0; s <= totalT; s += 5) {
+      const x = PL + s * pxPerS;
+      ctx.strokeStyle = s % 30 === 0 ? 'rgba(74,222,128,.15)' : 'rgba(42,42,69,.5)';
+      ctx.lineWidth = s % 30 === 0 ? 1 : .5;
+      ctx.beginPath(); ctx.moveTo(x, HEADER); ctx.lineTo(x, H); ctx.stroke();
+      if (s % 10 === 0) {
+        ctx.fillStyle = 'rgba(112,128,168,.7)'; ctx.font = '9px JetBrains Mono,monospace';
+        ctx.fillText(s + 's', x - 8, 15);
+      }
+    }
+
+    r.chars.forEach((c, i) => {
+      const y = HEADER + i * ROW_H;
+      ctx.fillStyle = i % 2 === 0 ? 'rgba(14,14,26,.6)' : 'rgba(19,19,31,.6)';
+      ctx.fillRect(0, y, W, ROW_H);
+      const color = CHAR_COLORS[i % CHAR_COLORS.length];
+      ctx.fillStyle = color; ctx.font = 'bold 10px Noto Sans KR,sans-serif';
+      ctx.fillText(c.name, 4, y + ROW_H / 2 + 4);
+      ctx.strokeStyle = 'rgba(42,42,69,.4)'; ctx.lineWidth = .5;
+      ctx.beginPath(); ctx.moveTo(0, y + ROW_H); ctx.lineTo(W, y + ROW_H); ctx.stroke();
+    });
+
+    r.events.forEach(ev => {
+      const ci = r.chars.findIndex(c => c.name === ev.charName);
+      if (ci < 0) return;
+      const color = ACOLORS[ev.action] || '#fff';
+      const x = PL + ev.time * pxPerS;
+      const w = Math.max(4, ev.duration * pxPerS - 1);
+      const y = HEADER + ci * ROW_H + 3;
+      const h = ROW_H - 6;
+      ctx.fillStyle = color + '28'; rr(ctx, x, y, w, h, 3); ctx.fill();
+      ctx.strokeStyle = color; ctx.lineWidth = 1.5; rr(ctx, x, y, w, h, 3); ctx.stroke();
+      if (ev.action === 'ult') { ctx.shadowColor = color; ctx.shadowBlur = 8; ctx.stroke(); ctx.shadowBlur = 0; }
+      if (w > 28 && ev.dmg > 0) {
+        ctx.fillStyle = color; ctx.font = '8px JetBrains Mono,monospace';
+        const lbl = ev.dmg >= 10000 ? (ev.dmg / 10000).toFixed(1) + '만' : ev.dmg.toLocaleString();
+        ctx.fillText(lbl, x + 3, y + h / 2 + 3);
+      }
+    });
+
+    ctx.strokeStyle = 'rgba(74,222,128,.2)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(PL, 0); ctx.lineTo(PL, H); ctx.stroke();
+  }
+
+  function rr(ctx, x, y, w, h, r_) {
+    ctx.beginPath();
+    ctx.moveTo(x + r_, y); ctx.lineTo(x + w - r_, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r_);
+    ctx.lineTo(x + w, y + h - r_); ctx.quadraticCurveTo(x + w, y + h, x + w - r_, y + h);
+    ctx.lineTo(x + r_, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r_);
+    ctx.lineTo(x, y + r_); ctx.quadraticCurveTo(x, y, x + r_, y);
+    ctx.closePath();
+  }
+
+  window.addEventListener('resize', () => { if (simResult) drawTimeline(simResult); });
+
+
+  init();
+</script>
+</body>
+
+</html>
